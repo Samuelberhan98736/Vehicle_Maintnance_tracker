@@ -119,8 +119,31 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen>{
               Navigator.pop(context);
             }
           },
-          child: const Text("save Changes"),)
+          child: const Text("save Changes"),),
       ],
     );
   }
+
+
+void _clearFields(){
+  _typeController.clear;
+  _dateController.clear;
+  _costController.clear;
+  _notesController.clear;
+}
+
+@override
+
+void dispose(){
+  _dateController.dispose();
+  _costController.dispose();
+  _notesController.dispose();
+  _typeController.dispose();
+  super.dispose();
+}
+
+
+
+
+
 }
