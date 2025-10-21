@@ -143,6 +143,104 @@ void dispose(){
 }
 
 
+@override
+
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Maintenance Log')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _typeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Service Type',
+                      prefixIcon: Icon(Icons.build),
+                    ),
+                    validator: (v) => v!.isEmpty ? 'Enter service type' : null,
+                  ),
+                  TextFormField(
+                    controller: _dateController,
+                    decoration: const InputDecoration(
+                      labelText: 'Date',
+                      prefixIcon: Icon(Icons.calendar_today),
+                    ),
+                    validator: (v) => v!.isEmpty ? 'Enter date' : null,
+                  ),
+                  TextFormField(
+                    controller: _costController,
+                    decoration: const InputDecoration(
+                      labelText: 'Cost',
+                      prefixIcon: Icon(Icons.attach_money),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (v) => v!.isEmpty ? 'Enter cost' : null,
+                  ),
+                  TextFormField(
+                    controller: _notesController,
+                    decoration: const InputDecoration(
+                      labelText: 'Notes',
+                      prefixIcon: Icon(Icons.note),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: _addLog,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Maintenance Log'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _logs.isEmpty
+                  ? const Center(
+                      child: Text('No maintenance logs yet.'),
+                    )
+                  : ListView.builder(
+                      itemCount: _logs.length,
+                      itemBuilder: (context, index) {
+                        final log = _logs[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          elevation: 2,
+                          child: ListTile(
+                            leading: const Icon(Icons.car_repair),
+                            title: Text('${log.type} — \$${log.cost}'),
+                            subtitle: Text('${log.date}\n${log.notes}'),
+                            isThreeLine: true,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _editLog(index),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => _deleteLog(index),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
 
 
