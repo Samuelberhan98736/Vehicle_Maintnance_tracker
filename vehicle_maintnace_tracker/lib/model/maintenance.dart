@@ -1,18 +1,18 @@
 
 //stores basic vehicle data
 
-class MaintenanceLog {
-  String type;
-  String date;
-  double cost;
-  String notes;
+class Maintenance {
+  final String type;
+  final  DateTime date;
+  final double cost;
+  
 
 
-  MaintenanceLog({
+  Maintenance({
     required this.type,
     required this.date,
     required this.cost,
-    required this.notes,
+    
 });
 }
 

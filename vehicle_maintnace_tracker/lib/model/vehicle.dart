@@ -12,7 +12,7 @@ class Vehicle{
     required this.make,
     required this.model,
     required this.year,
-    required this.year,
+    
     required this.milage,
 });
 

@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
 
               // --- Future Add-ons Placeholder ---
               Text(
-                'More features coming soon 🚗💨',
+                'More features coming soon ',
                 style: TextStyle(
                   color: colorScheme.onSurface.withOpacity(0.6),
                   fontStyle: FontStyle.italic,
