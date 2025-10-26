@@ -14,20 +14,28 @@ class VehicleMaintenanceApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Vehicle Maintenance Tracker',
+      debugShowCheckedModeBanner: false,
+
+      //  Follow system theme (auto switches between light/dark)
       themeMode: ThemeMode.system,
+
+      //  Light Mode Theme
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         brightness: Brightness.light,
       ),
+
+      //  Dark Mode Theme
       darkTheme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blueAccent,
           brightness: Brightness.dark,
         ),
-        useMaterial3: true,
       ),
-      debugShowCheckedModeBanner: false,
+
+      //  Navigation setup
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),

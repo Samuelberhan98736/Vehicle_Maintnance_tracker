@@ -1,122 +1,81 @@
 import 'package:flutter/material.dart';
-import 'screen/maintenance_log.dart';
 
-import 'screen/vehicle_info.dart';
-import 'screen/reminders_screen.dart';
-
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
-
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  bool _isDarkMode = false;
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeData(
-      colorSchemeSeed: Colors.teal,
-      brightness: _isDarkMode ? Brightness.dark : Brightness.light,
-      useMaterial3: true,
-    );
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: theme,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Vehicle Maintenance Tracker"),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(_isDarkMode ? Icons.dark_mode : Icons.light_mode),
-              onPressed: () {
-                setState(() {
-                  _isDarkMode = !_isDarkMode;
-                });
-              },
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Vehicle Maintenance Tracker',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
+        centerTitle: true,
+        backgroundColor: colorScheme.primaryContainer,
+      ),
+      body: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primaryContainer.withOpacity(0.3),
+              colorScheme.surfaceVariant.withOpacity(0.4),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Top buttons for maintenance & vehicle summaries
-              Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    _buildLargeButton(
-                      context,
-                      title: "Upcoming Maintenance",
-                      icon: Icons.build_circle,
-                      color: Colors.teal.shade400,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const MaintenanceLogScreen()),
-                        );
-                      },
+              Icon(Icons.directions_car,
+                  size: 100, color: colorScheme.primary),
+              const SizedBox(height: 20),
+              Text(
+                'Welcome to Your Vehicle Dashboard',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
                     ),
-                    const SizedBox(height: 15),
-                    _buildLargeButton(
-                      context,
-                      title: "Vehicle Summaries",
-                      icon: Icons.directions_car,
-                      color: Colors.indigo.shade400,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const VehicleInfoScreen()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+
+              // --- Maintenance Log Button ---
+              _buildNavButton(
+                context,
+                title: 'Maintenance Log',
+                subtitle: 'View and record your maintenance activities',
+                icon: Icons.build_circle_outlined,
+                routeName: '/maintenanceLog',
+                color: colorScheme.primary,
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 16),
 
-              // Bottom navigation buttons
-              Expanded(
-                flex: 1,
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  children: [
-                    _buildNavButton(
-                      context,
-                      "Maintenance Log Screen",
-                      Icons.handyman,
-                      Colors.green.shade400,
-                      const MaintenanceLogScreen(),
-                    ),
-                    _buildNavButton(
-                      context,
-                      "Expense Tracker Screen",
-                      Icons.receipt_long,
-                      Colors.orange.shade400,
-                      const ExpenseTrackerScreen(),
-                    ),
-                    _buildNavButton(
-                      context,
-                      "Vehicle Info Screen",
-                      Icons.car_repair,
-                      Colors.blue.shade400,
-                      const VehicleInfoScreen(),
-                    ),
-                    _buildNavButton(
-                      context,
-                      "Reminders",
-                      Icons.alarm,
-                      Colors.purple.shade400,
-                      const RemindersScreen(),
-                    ),
-                  ],
+              // --- Vehicle Info Button ---
+              _buildNavButton(
+                context,
+                title: 'Vehicle Info',
+                subtitle: 'Add or view your car details',
+                icon: Icons.car_repair_outlined,
+                routeName: '/vehicleInfo',
+                color: colorScheme.secondary,
+              ),
+
+              const SizedBox(height: 30),
+
+              // --- Future Add-ons Placeholder ---
+              Text(
+                'More features coming soon 🚗💨',
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.6),
+                  fontStyle: FontStyle.italic,
                 ),
               ),
             ],
@@ -126,73 +85,65 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // Large top buttons
-  Widget _buildLargeButton(BuildContext context,
-      {required String title,
-      required IconData icon,
-      required Color color,
-      required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _buildNavButton(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required String routeName,
+    required Color color,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () => Navigator.pushNamed(context, routeName),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(25),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(20),
+          color: color.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.5)),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 10,
-              spreadRadius: 2,
-              offset: const Offset(2, 5),
+              color: color.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(2, 4),
             ),
           ],
         ),
         child: Row(
           children: [
-            Icon(icon, size: 30, color: Colors.white),
-            const SizedBox(width: 20),
+            Icon(icon, color: color, size: 36),
+            const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                    color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme(context).onSurface)),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: colorScheme(context)
+                          .onSurfaceVariant
+                          .withOpacity(0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 18),
           ],
         ),
       ),
     );
   }
 
-  // Small grid buttons
-  Widget _buildNavButton(BuildContext context, String title, IconData icon,
-      Color color, Widget destination) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => destination),
-        );
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 30),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
+  // helper function for colorScheme inside a widget
+  ColorScheme colorScheme(BuildContext context) => Theme.of(context).colorScheme;
 }
