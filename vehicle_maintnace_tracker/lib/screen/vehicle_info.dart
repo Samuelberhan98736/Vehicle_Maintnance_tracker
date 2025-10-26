@@ -45,7 +45,55 @@ class _vehicleInfoScreenState extends State<VehicleInfoScreen>{
 
 }
 
+//dlete vehicle method
+
+void _deleteVehicle(int index){
+  setState(() => _vehicles.removeAt(index));
+}
 
 
-
-
+ @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Vehicle Info')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(controller: makeController, decoration: const InputDecoration(labelText: 'Make'), validator: (v) => v!.isEmpty ? 'Enter make' : null),
+                  TextFormField(controller: modelController, decoration: const InputDecoration(labelText: 'Model'), validator: (v) => v!.isEmpty ? 'Enter model' : null),
+                  TextFormField(controller: yearController, decoration: const InputDecoration(labelText: 'Year'), keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Enter year' : null),
+                  TextFormField(controller: mileageController, decoration: const InputDecoration(labelText: 'Mileage'), keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Enter mileage' : null),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: _addVehicle,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Vehicle'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            const Divider(),
+            const Text('Your Vehicles', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            ..._vehicles.map((v) => Card(
+                  child: ListTile(
+                    title: Text('${v.make} ${v.model} (${v.year})'),
+                    subtitle: Text('Mileage: ${v.mileage} mi'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => _deleteVehicle(_vehicles.indexOf(v)),
+                    ),
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+}
