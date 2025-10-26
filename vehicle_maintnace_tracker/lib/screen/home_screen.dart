@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'maintenance_log_screen.dart';
-import 'expense_tracker_screen.dart';
-import 'vehicle_info_screen.dart';
-import 'reminders_screen.dart';
+import 'screen/maintenance_log.dart';
+
+import 'screen/vehicle_info.dart';
+import 'screen/reminders_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

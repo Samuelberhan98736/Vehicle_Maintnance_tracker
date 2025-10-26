@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/dashboard_screen.dart';
-import 'screens/maintenance_log_screen.dart';
-import 'screens/vehicle_info_screen.dart';
+import 'screen/home_screen.dart';
+import 'screen/maintenance_log.dart';
+import 'screen/vehicle_info.dart';
 
 void main() {
   runApp(const VehicleMaintenanceApp());
@@ -30,7 +30,7 @@ class VehicleMaintenanceApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => const DashboardScreen(),
+        '/': (context) => const HomeScreen(),
         '/maintenanceLog': (context) => const MaintenanceLogScreen(),
         '/vehicleInfo': (context) => const VehicleInfoScreen(),
       },

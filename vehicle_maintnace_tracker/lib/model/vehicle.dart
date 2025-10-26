@@ -1,3 +1,5 @@
+
+//stores basic vehicle data
 class Vehicle{
   String make;
   String model;
@@ -15,3 +17,6 @@ class Vehicle{
 });
 
 }
+
+
+//stores basic vehicl data
