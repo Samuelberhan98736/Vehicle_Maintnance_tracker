@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '/model/maintenance.dart';
+import '/database/database_helper.dart';
 
 class MaintenanceLogScreen extends StatefulWidget {
-  const MaintenanceLogScreen({super.key});
+
+  final int vehicleId;
+  const MaintenanceLogScreen({super.key, required this.vehicleId});
 
   @override
   State<MaintenanceLogScreen> createState() => _MaintenanceLogScreenState();
@@ -10,7 +13,22 @@ class MaintenanceLogScreen extends StatefulWidget {
 
 class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
   // List to store all maintenance records
-  final List<Maintenance> _logs = [];
+  List<Map<String,dynamic>> _logs = [];
+  final dbHelper = DatabaseHelper();
+
+  @override
+  void initState(){
+    super.initState();
+    _loadLogs();
+  }
+
+
+  Future<void>_loadLogs()async{
+    final data = await dbHelper.getMaintenanceByVehicle(widget.vehicleId);
+    setState(() {
+      _logs = data;
+    });
+  }
 
   /// Shows a dialog to add a new maintenance log entry
   /// Uses async await pattern for better dialog handling
@@ -20,7 +38,7 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
     final costController = TextEditingController();
 
     // Show dialog and wait for result (returns null if dismissed)
-    final result = await showDialog<Maintenance>(
+    final result = await showDialog<Map<String,dynamic>>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -95,14 +113,12 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
                 }
 
                 // Create new maintenance object and return it
-                final newLog = Maintenance(
-                  type: typeController.text.trim(),
-                  date: DateTime.now(),
-                  cost: cost,
-                );
-
-                // Close dialog and return the new log
-                Navigator.pop(context, newLog);
+                Navigator.pop(context, {
+                  'vehicleId': widget.vehicleId,
+                  'type': typeController.text.trim(),
+                  'date':DateTime.now().toIso8601String(),
+                  'cost': cost,
+                });
               },
               child: const Text('Add'),
             ),
@@ -117,15 +133,14 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
 
     // If user added a log (didn't cancel), update the state
     if (result != null) {
-      setState(() {
-        _logs.add(result);
-      });
+      await dbHelper.insertMaintenance(result); //save to db
+      await _loadLogs();//refresh list
 
       // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${result.type} added successfully'),
+            content: Text('${result['type']} added successfully'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -144,7 +159,7 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Delete Maintenance'),
-          content: Text('Are you sure you want to delete "${log.type}"?'),
+          content: Text('Are you sure you want to delete "${log['type']}"?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -165,17 +180,22 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
 
     // If user confirmed deletion, remove the log
     if (confirm == true && mounted) {
-      setState(() {
-        _logs.removeAt(index);
-      });
+      await dbHelper.deleteMaintenance(_logs[index]['id']);
+      await _loadLogs();
 
       // Show confirmation message
+
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${log.type} deleted'),
+          content: Text('${log['type']} deleted'),
           duration: const Duration(seconds: 2),
         ),
       );
+      }
+
+      
+      
     }
   }
 
@@ -246,7 +266,7 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
                     ),
                     // Maintenance type as title
                     title: Text(
-                      log.type,
+                      log['type'],
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -255,7 +275,7 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
-                        'Date: ${_formatDate(log.date)} • Cost: \$${log.cost.toStringAsFixed(2)}',
+                        'Date: ${_formatDate(log['date'])} • Cost: \$${(log['cost'] ?? 0).toStringAsFixed(2)}',
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 13,
@@ -283,13 +303,19 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
   }
 
   /// Helper method to format date in a readable way
-  String _formatDate(DateTime date) {
-    // Format: MMM dd, yyyy (e.g., Jan 15, 2024)
-    final months = [
+  String _formatDate(dynamic dateValue) {
+    try{
+      final date = dateValue is DateTime
+      ?dateValue
+      :DateTime.tryParse(dateValue.toString()) ?? DateTime.now();
+    // Format: MMM dd, yyyy ( Jan 15, 2024)
+    const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
+    }catch(_){
+      return 'Invalid Date';
+    }
 }

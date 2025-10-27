@@ -65,6 +65,10 @@ Future<void> _loadVehicles()async{
       //relead updates list
 
       _loadVehicles();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content:Text('Vehicle added succefully!')),
+      );
     }
   }
 
