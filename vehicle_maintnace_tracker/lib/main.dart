@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'screen/home_screen.dart';
 import 'screen/maintenance_log.dart';
 import 'screen/vehicle_info.dart';
+import 'notifications/notification_service.dart';
 
-void main() {
+
+
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init(); //initialize notifications
   runApp(const VehicleMaintenanceApp());
 }
 
