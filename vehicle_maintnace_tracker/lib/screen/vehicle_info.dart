@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import'/database/database_helper.dart';
 import '/model/vehicle.dart';
 
 class VehicleInfoScreen extends StatefulWidget {
@@ -9,39 +10,68 @@ class VehicleInfoScreen extends StatefulWidget {
 }
 
 class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
-  final List<Vehicle> _vehicles = [];
+  //list to store
+  List<Map<String, dynamic>> _vehicles = [];
 
+  
+//controller for text
   final _formKey = GlobalKey<FormState>();
   final makeController = TextEditingController();
   final modelController = TextEditingController();
   final yearController = TextEditingController();
   final mileageController = TextEditingController();
 
-  // Add vehicle method
-  void _addVehicle() {
+//diatabase helper instance
+  final dbHelper = DatabaseHelper();
+
+//load vehicles when screen starts
+@override
+
+void initState(){
+  super.initState();
+_loadVehicles(); //fetch existing data from sqllite
+}
+
+
+Future<void> _loadVehicles()async{
+  final data = await dbHelper.getVehicles(); //fetch data using helper class
+  setState(() {
+    _vehicles = data; //update state to render the screen
+  });
+}
+
+
+  // Add vehicle method to the database
+  Future<void> _addVehicle()async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _vehicles.add(
-          Vehicle(
-            make: makeController.text.trim(),
-            model: modelController.text.trim(),
-            year: int.tryParse(yearController.text.trim()) ?? 0,
-            milage: double.tryParse(mileageController.text.trim()) ?? 0.0,
-          ),
-        );
-      });
+      final vehicle = {
+        'make': makeController.text,
+        'model': modelController.text,
+        'year': int.tryParse(yearController.text)??0,
+        'milage': double.tryParse(mileageController.text) ?? 0.0,
+
+      };
+
+      //insert into database
+      await dbHelper.insertVehicle(vehicle);
 
       // clear text fields after adding
       makeController.clear();
       modelController.clear();
       yearController.clear();
       mileageController.clear();
+
+
+      //relead updates list
+
+      _loadVehicles();
     }
   }
 
   // Delete vehicle method
-  void _deleteVehicle(int index) {
-    setState(() => _vehicles.removeAt(index));
+  Future<void> _deleteVehicle(int id) async {
+    await dbHelper.deleteVehicle(id);
+    _loadVehicles();
   }
 
   @override
@@ -53,7 +83,7 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
     mileageController.dispose();
     super.dispose();
   }
-
+//ui
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -170,8 +200,8 @@ class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
                       leading: const Icon(Icons.directions_car, size: 35),
-                      title: Text('${v.make} ${v.model} (${v.year})'),
-                      subtitle: Text('Mileage: ${v.milage} mi'),
+                      title: Text('${v['make']} ${v['model']} (${v['year']})'),
+                      subtitle: Text('Mileage: ${v['mileage']} mi'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline),
                         color: Colors.redAccent,
