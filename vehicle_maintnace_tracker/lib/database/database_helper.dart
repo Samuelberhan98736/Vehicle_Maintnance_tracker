@@ -1,7 +1,8 @@
-import 'package:sqflite/sqflite.dart';       // SQLite plugin for Flutter — allows local database storage
-import 'package:path/path.dart';             // Helps build correct file paths on all platforms
-import 'package:path_provider/path_provider.dart'; // Lets us find safe directories on the device (e.g., app folder)
-import 'dart:io';                            // For working with the file system (needed for directories)
+import 'package:sqflite/sqflite.dart' show Database;       
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+                            // For working with the file system (needed for directories)
 
 // ======================================================================
 // DATABASE HELPER CLASS
@@ -61,6 +62,9 @@ class DatabaseHelper {
       path,
       version: _dbVersion,
       onCreate: _onCreate,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
     );
   }
 
@@ -150,6 +154,15 @@ class DatabaseHelper {
       where: 'vehicleId = ?',
       whereArgs: [vehicleId],
       orderBy: 'date DESC',  // show latest logs first
+    );
+  }
+
+  // Get all maintenance logs regardless of vehicle
+  Future<List<Map<String, dynamic>>> getAllMaintenance() async {
+    final db = await database;
+    return await db.query(
+      maintenanceTable,
+      orderBy: 'date DESC',
     );
   }
 

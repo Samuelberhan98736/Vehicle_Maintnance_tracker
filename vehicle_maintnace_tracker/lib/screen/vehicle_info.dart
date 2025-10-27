@@ -48,7 +48,7 @@ Future<void> _loadVehicles()async{
         'make': makeController.text,
         'model': modelController.text,
         'year': int.tryParse(yearController.text)??0,
-        'milage': double.tryParse(mileageController.text) ?? 0.0,
+        'mileage': double.tryParse(mileageController.text) ?? 0.0,
 
       };
 
@@ -209,7 +209,7 @@ Future<void> _loadVehicles()async{
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline),
                         color: Colors.redAccent,
-                        onPressed: () => _deleteVehicle(index),
+                        onPressed: () => _deleteVehicle(v['id']),
                       ),
                     ),
                   );

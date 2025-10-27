@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '/model/maintenance.dart';
-import '/database/database_helper.dart';
+import '../database/database_helper.dart';
 
 class MaintenanceLogScreen extends StatefulWidget {
 
-  final int vehicleId;
-  const MaintenanceLogScreen({super.key, required this.vehicleId});
+  final int? vehicleId;
+  const MaintenanceLogScreen({super.key, this.vehicleId});
 
   @override
   State<MaintenanceLogScreen> createState() => _MaintenanceLogScreenState();
@@ -24,7 +23,9 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
 
 
   Future<void>_loadLogs()async{
-    final data = await dbHelper.getMaintenanceByVehicle(widget.vehicleId);
+    final data = widget.vehicleId != null
+        ? await dbHelper.getMaintenanceByVehicle(widget.vehicleId!)
+        : await dbHelper.getAllMaintenance();
     setState(() {
       _logs = data;
     });
@@ -33,6 +34,17 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
   /// Shows a dialog to add a new maintenance log entry
   /// Uses async await pattern for better dialog handling
   Future<void> _addLog() async {
+    if (widget.vehicleId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Open from a vehicle to add maintenance'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
     // Controllers to capture user input from text fields
     final typeController = TextEditingController();
     final costController = TextEditingController();
@@ -192,7 +204,8 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
           duration: const Duration(seconds: 2),
         ),
       );
-      }
+     
+  
 
       
       
@@ -318,4 +331,5 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
     }catch(_){
       return 'Invalid Date';
     }
+}
 }
