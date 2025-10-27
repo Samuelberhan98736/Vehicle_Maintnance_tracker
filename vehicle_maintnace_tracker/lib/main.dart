@@ -3,6 +3,7 @@ import 'screen/home_screen.dart';
 import 'screen/maintenance_log.dart';
 import 'screen/vehicle_info.dart';
 import 'notifications/notification_service.dart';
+import 'screen/reminder.dart';
 
 
 
@@ -10,7 +11,8 @@ import 'notifications/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService().init(); //initialize notifications
+  await NotificationService().init(); // initialize notifications
+  await NotificationService().requestPermissions(); // request runtime permissions
   runApp(const VehicleMaintenanceApp());
 }
 
@@ -62,6 +64,7 @@ class _VehicleMaintenanceAppState extends State<VehicleMaintenanceApp> {
             ),
         '/maintenanceLog': (context) => const MaintenanceLogScreen(),
         '/vehicleInfo': (context) => const VehicleInfoScreen(),
+        '/reminder': (context) => const ReminderScreen(),
       },
     );
   }

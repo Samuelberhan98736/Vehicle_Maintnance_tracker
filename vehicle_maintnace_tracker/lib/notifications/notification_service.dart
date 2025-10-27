@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'dart:io';
 
 /// Handles all scheduling and showing of local notifications.
 class NotificationService {
@@ -15,7 +16,6 @@ class NotificationService {
   Future<void> init() async {
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings(
-      // Keep requests separate so we can prompt at a controlled time
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
@@ -25,11 +25,11 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin.initialize(initSettings);
 
-    // Initialize timezone data once at app startup
+    // Initialize timezone database for zoned scheduling
     tz.initializeTimeZones();
   }
 
-  /// Ask the user for notification permissions (iOS and Android 13+)
+  /// Ask the user for notification permissions (Android 13+ and iOS)
   Future<void> requestPermissions() async {
     // Android 13+
     final androidImpl = flutterLocalNotificationsPlugin
@@ -42,7 +42,7 @@ class NotificationService {
     await iosImpl?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
-  /// Schedule a notification at a specific date & time
+  /// Schedule a notification at a specific date & time (one-off)
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -64,10 +64,7 @@ class NotificationService {
         ),
         iOS: DarwinNotificationDetails(),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      // For one-off notifications, do NOT set matchDateTimeComponents
+      androidScheduleMode: AndroidScheduleMode.inexact,
     );
   }
 

@@ -33,6 +33,7 @@ dependencies:
   sqflite: ^2.4.2
   path: ^1.8.3
   path_provider: ^2.1.4
+  # Use modern plugin compatible with AGP 8; desugaring is already enabled
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
 

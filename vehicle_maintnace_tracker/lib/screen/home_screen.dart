@@ -125,6 +125,18 @@ class HomeScreen extends StatelessWidget {
                 color: colorScheme.secondary,
               ),
 
+              const SizedBox(height: 16),
+
+              // --- Reminders Button ---
+              _buildNavButton(
+                context,
+                title: 'Reminders',
+                subtitle: 'Schedule maintenance notifications',
+                icon: Icons.notifications_active_outlined,
+                routeName: '/reminder',
+                color: colorScheme.tertiary,
+              ),
+
               const SizedBox(height: 30),
 
               // --- Future Add-ons Placeholder ---
