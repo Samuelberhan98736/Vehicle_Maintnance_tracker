@@ -34,107 +34,164 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
   /// Shows a dialog to add a new maintenance log entry
   /// Uses async await pattern for better dialog handling
   Future<void> _addLog() async {
-    if (widget.vehicleId == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Open from a vehicle to add maintenance'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-      return;
-    }
+    // Use the page's ScaffoldMessenger, not the dialog context
+    final messenger = ScaffoldMessenger.of(context);
     // Controllers to capture user input from text fields
     final typeController = TextEditingController();
     final costController = TextEditingController();
 
+    int? selectedVehicleId = widget.vehicleId;
+    List<Map<String, dynamic>> vehicles = [];
+
+    // If we weren't opened for a specific vehicle, allow choosing one
+    if (selectedVehicleId == null) {
+      vehicles = await dbHelper.getVehicles();
+      if (vehicles.isEmpty) {
+        if (mounted) {
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Text('Add a vehicle first'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+        return;
+      }
+      selectedVehicleId = vehicles.first['id'] as int;
+    }
+
     // Show dialog and wait for result (returns null if dismissed)
     final result = await showDialog<Map<String,dynamic>>(
       context: context,
+      useRootNavigator: false,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Add Maintenance'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Input field for maintenance type
-              TextField(
-                controller: typeController,
-                decoration: const InputDecoration(
-                  labelText: 'Type (e.g., Oil Change)',
-                  hintText: 'Enter maintenance type',
+        // Local mutable state for dropdown selection
+        int? tempVehicleId = selectedVehicleId;
+
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: const Text('Add Maintenance'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.vehicleId == null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Vehicle', style: Theme.of(context).textTheme.bodySmall),
+                          const SizedBox(height: 6),
+                          InputDecorator(
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<int>(
+                                value: tempVehicleId,
+                                isExpanded: true,
+                                items: [
+                                  for (final v in vehicles)
+                                    DropdownMenuItem<int>(
+                                      value: v['id'] as int,
+                                      child: Text('${v['make']} ${v['model']} (${v['year']})'),
+                                    )
+                                ],
+                                onChanged: (val) => setStateDialog(() => tempVehicleId = val),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (widget.vehicleId == null) const SizedBox(height: 12),
+
+                    // Input field for maintenance type
+                    TextField(
+                      controller: typeController,
+                      decoration: const InputDecoration(
+                        labelText: 'Type (e.g., Oil Change)',
+                        hintText: 'Enter maintenance type',
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const SizedBox(height: 12),
+                    // Input field for cost
+                    TextField(
+                      controller: costController,
+                      decoration: const InputDecoration(
+                        labelText: 'Cost',
+                        prefixText: '\$',
+                        hintText: '0.00',
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
+                  ],
                 ),
-                textCapitalization: TextCapitalization.words,
               ),
-              const SizedBox(height: 12),
-              // Input field for cost
-              TextField(
-                controller: costController,
-                decoration: const InputDecoration(
-                  labelText: 'Cost',
-                  prefixText: '\$',
-                  hintText: '0.00',
+              actions: [
+                // Cancel button - dismisses dialog without saving
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
                 ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              ),
-            ],
-          ),
-          actions: [
-            // Cancel button - dismisses dialog without saving
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            // Add button - validates and returns new maintenance object
-            ElevatedButton(
-              onPressed: () {
-                // Validate that both fields have content
-                if (typeController.text.trim().isEmpty) {
-                  // Show error if type field is empty
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a maintenance type'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                  return;
-                }
+                // Add button - validates and returns new maintenance object
+                ElevatedButton(
+                  onPressed: () {
+                    // Validate fields
+                    if (typeController.text.trim().isEmpty) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a maintenance type'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
 
-                if (costController.text.trim().isEmpty) {
-                  // Show error if cost field is empty
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a cost'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                  return;
-                }
+                    if (costController.text.trim().isEmpty) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a cost'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
 
-                // Parse cost and validate it's a valid number
-                final cost = double.tryParse(costController.text.trim());
-                if (cost == null || cost < 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a valid cost'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                  return;
-                }
+                    final cost = double.tryParse(costController.text.trim());
+                    if (cost == null || cost < 0) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a valid cost'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
 
-                // Create new maintenance object and return it
-                Navigator.pop(context, {
-                  'vehicleId': widget.vehicleId,
-                  'type': typeController.text.trim(),
-                  'date':DateTime.now().toIso8601String(),
-                  'cost': cost,
-                });
-              },
-              child: const Text('Add'),
-            ),
-          ],
+                    if (tempVehicleId == null) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Please select a vehicle'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+
+                    Navigator.pop(context, {
+                      'vehicleId': tempVehicleId,
+                      'type': typeController.text.trim(),
+                      'date': DateTime.now().toIso8601String(),
+                      'cost': cost,
+                    });
+                  },
+                  child: const Text('Add'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -150,7 +207,7 @@ class _MaintenanceLogScreenState extends State<MaintenanceLogScreen> {
 
       // Show success message
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text('${result['type']} added successfully'),
             duration: const Duration(seconds: 2),

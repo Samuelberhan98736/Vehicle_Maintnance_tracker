@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart' show Database;       
+import 'package:sqflite/sqflite.dart' show Database, openDatabase;       
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';

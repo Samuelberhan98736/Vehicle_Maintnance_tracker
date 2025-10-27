@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+
+  const HomeScreen({
+    super.key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +22,56 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: colorScheme.primaryContainer,
+        actions: [
+          PopupMenuButton<ThemeMode>(
+            tooltip: 'Theme',
+            icon: const Icon(Icons.brightness_6),
+            initialValue: themeMode,
+            onSelected: onThemeModeChanged,
+            itemBuilder: (context) => <PopupMenuEntry<ThemeMode>>[
+              PopupMenuItem(
+                value: ThemeMode.system,
+                child: Row(
+                  children: [
+                    Icon(Icons.settings_suggest,
+                        color: Theme.of(context).colorScheme.onSurface),
+                    const SizedBox(width: 10),
+                    const Text('System'),
+                    const Spacer(),
+                    if (themeMode == ThemeMode.system)
+                      const Icon(Icons.check, size: 18),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: ThemeMode.light,
+                child: Row(
+                  children: [
+                    const Icon(Icons.light_mode),
+                    const SizedBox(width: 10),
+                    const Text('Light'),
+                    const Spacer(),
+                    if (themeMode == ThemeMode.light)
+                      const Icon(Icons.check, size: 18),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: ThemeMode.dark,
+                child: Row(
+                  children: [
+                    const Icon(Icons.dark_mode),
+                    const SizedBox(width: 10),
+                    const Text('Dark'),
+                    const Spacer(),
+                    if (themeMode == ThemeMode.dark)
+                      const Icon(Icons.check, size: 18),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Container(
         width: double.infinity,

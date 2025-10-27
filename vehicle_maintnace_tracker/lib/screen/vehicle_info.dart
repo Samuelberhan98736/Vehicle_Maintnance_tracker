@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import'/database/database_helper.dart';
-import '/model/vehicle.dart';
+import '../database/database_helper.dart';
+import 'maintenance_log.dart';
 
 class VehicleInfoScreen extends StatefulWidget {
   const VehicleInfoScreen({super.key});
@@ -206,10 +206,20 @@ Future<void> _loadVehicles()async{
                       leading: const Icon(Icons.directions_car, size: 35),
                       title: Text('${v['make']} ${v['model']} (${v['year']})'),
                       subtitle: Text('Mileage: ${v['mileage']} mi'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MaintenanceLogScreen(
+                              vehicleId: v['id'] as int,
+                            ),
+                          ),
+                        );
+                      },
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline),
                         color: Colors.redAccent,
-                        onPressed: () => _deleteVehicle(v['id']),
+                        onPressed: () => _deleteVehicle(v['id'] as int),
                       ),
                     ),
                   );

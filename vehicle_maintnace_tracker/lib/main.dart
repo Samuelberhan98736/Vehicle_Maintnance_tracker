@@ -7,8 +7,19 @@ void main() {
   runApp(const VehicleMaintenanceApp());
 }
 
-class VehicleMaintenanceApp extends StatelessWidget {
+class VehicleMaintenanceApp extends StatefulWidget {
   const VehicleMaintenanceApp({super.key});
+
+  @override
+  State<VehicleMaintenanceApp> createState() => _VehicleMaintenanceAppState();
+}
+
+class _VehicleMaintenanceAppState extends State<VehicleMaintenanceApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _setThemeMode(ThemeMode mode) {
+    setState(() => _themeMode = mode);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,17 +27,17 @@ class VehicleMaintenanceApp extends StatelessWidget {
       title: 'Vehicle Maintenance Tracker',
       debugShowCheckedModeBanner: false,
 
-      //  Follow system theme (auto switches between light/dark)
-      themeMode: ThemeMode.system,
+      // Follow system theme or user selection
+      themeMode: _themeMode,
 
-      //  Light Mode Theme
+      // Light Mode Theme
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         brightness: Brightness.light,
       ),
 
-      //  Dark Mode Theme
+      // Dark Mode Theme
       darkTheme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -35,10 +46,13 @@ class VehicleMaintenanceApp extends StatelessWidget {
         ),
       ),
 
-      //  Navigation setup
+      // Navigation setup
       initialRoute: '/',
       routes: {
-        '/': (context) => const HomeScreen(),
+        '/': (context) => HomeScreen(
+              themeMode: _themeMode,
+              onThemeModeChanged: _setThemeMode,
+            ),
         '/maintenanceLog': (context) => const MaintenanceLogScreen(),
         '/vehicleInfo': (context) => const VehicleInfoScreen(),
       },
