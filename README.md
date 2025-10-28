@@ -28,3 +28,6 @@
 • Integrate local storage for logs and reminders.
 • Add notification system for upcoming maintenance.
 • Add multiple vehicle profiles for users managing more than one car.
+
+
+presentation: https://www.youtube.com/watch?v=7TVTkOAMUm8
